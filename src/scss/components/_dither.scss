@@ -1,3 +1,5 @@
+@use "sass:color";
+
 // Dithered Wave Background Component Styles
 .dithered-background {
   position: fixed;
@@ -120,11 +122,11 @@
     background: linear-gradient(
       45deg,
       $col-black 25%,
-      darken($col-black, 2%) 25%,
-      darken($col-black, 2%) 50%,
+      color.scale($col-black, $lightness: -2%) 25%,
+      color.scale($col-black, $lightness: -2%) 50%,
       $col-black 50%,
       $col-black 75%,
-      darken($col-black, 2%) 75%
+      color.scale($col-black, $lightness: -2%) 75%
     );
     background-size: 20px 20px;
     animation: loadingPattern 1s linear infinite;

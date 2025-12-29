@@ -22,6 +22,218 @@ window.THREE = THREE;
 // Initialize the new dithered background system
 let backgroundManager = null;
 
+// CINELUNATIC Banner GSAP Animations
+document.addEventListener('DOMContentLoaded', () => {
+  const cinelunaticBanner = document.getElementById('cinelunaticBanner');
+  
+  if (cinelunaticBanner) {
+    const badge = cinelunaticBanner.querySelector('.cinelunatic-banner__badge');
+    const titleMain = cinelunaticBanner.querySelector('.title-main');
+    const titleSubtitle = cinelunaticBanner.querySelector('.title-subtitle');
+    const arrow = cinelunaticBanner.querySelector('.cinelunatic-banner__arrow');
+    const container = cinelunaticBanner.querySelector('.cinelunatic-banner__container');
+    
+    // Ensure banner is visible and stays visible
+    gsap.set(cinelunaticBanner, { 
+      display: 'block',
+      visibility: 'visible',
+      opacity: 1
+    });
+    
+    // Initial entrance animation
+    const bannerTl = gsap.timeline({
+      delay: 0.3,
+      defaults: { ease: "power3.out" }
+    });
+    
+    // Set initial states (but keep banner visible)
+    gsap.set(cinelunaticBanner, { opacity: 0, y: -30, display: 'block', visibility: 'visible' });
+    gsap.set(badge, { opacity: 0, scale: 0.8, x: -20 });
+    if (titleMain) {
+      gsap.set(titleMain, { opacity: 0, x: -20 });
+    }
+    if (titleSubtitle) {
+      gsap.set(titleSubtitle, { opacity: 0, x: -20 });
+    }
+    if (arrow) {
+      gsap.set(arrow, { opacity: 0, x: -10 });
+    }
+    gsap.set(container, { scale: 0.95 });
+    
+    // Animate banner entrance - ensure it stays visible
+    bannerTl
+      .to(cinelunaticBanner, {
+        opacity: 1,
+        y: 0,
+        display: 'block',
+        visibility: 'visible',
+        duration: 0.8,
+        ease: "power3.out"
+      })
+      .to(container, {
+        scale: 1,
+        duration: 0.6,
+        ease: "back.out(1.2)"
+      }, "-=0.4")
+      .to(badge, {
+        opacity: 1,
+        scale: 1,
+        x: 0,
+        duration: 0.5,
+        ease: "back.out(1.5)"
+      }, "-=0.3");
+    
+    // Animate text elements only if they exist
+    if (titleMain) {
+      bannerTl.to(titleMain, {
+        opacity: 1,
+        x: 0,
+        duration: 0.6,
+        ease: "power2.out"
+      }, "-=0.4");
+    }
+    
+    if (titleSubtitle) {
+      bannerTl.to(titleSubtitle, {
+        opacity: 1,
+        x: 0,
+        duration: 0.5,
+        ease: "power2.out"
+      }, "-=0.5");
+    }
+    
+    if (arrow) {
+      bannerTl.to(arrow, {
+        opacity: 1,
+        x: 0,
+        duration: 0.4,
+        ease: "power2.out"
+      }, "-=0.3");
+    }
+    
+    // Ensure banner never gets hidden
+    bannerTl.call(() => {
+      gsap.set(cinelunaticBanner, { 
+        display: 'block',
+        visibility: 'visible',
+        opacity: 1
+      });
+    });
+    
+    // Continuous subtle animations
+    const badgeDot = badge?.querySelector('.badge-dot');
+    if (badgeDot) {
+      gsap.to(badgeDot, {
+        scale: 1.2,
+        opacity: 0.8,
+        duration: 1.5,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut"
+      });
+    }
+    
+    // Arrow pulse animation
+    if (arrow) {
+      gsap.to(arrow, {
+        x: 3,
+        duration: 1.2,
+        yoyo: true,
+        repeat: -1,
+        ease: "sine.inOut"
+      });
+    }
+    
+    // Title glow effect on hover
+    const titleHoverTl = gsap.timeline({ paused: true });
+    titleHoverTl
+      .to(titleMain, {
+        textShadow: "0 0 20px rgba(203, 69, 12, 0.6)",
+        duration: 0.3,
+        ease: "power2.out"
+      });
+    
+    const bannerLink = cinelunaticBanner.querySelector('.banner-title');
+    if (bannerLink) {
+      bannerLink.addEventListener('mouseenter', () => {
+        titleHoverTl.play();
+        gsap.to(arrow, {
+          x: 6,
+          duration: 0.3,
+          ease: "power2.out"
+        });
+      });
+      
+      bannerLink.addEventListener('mouseleave', () => {
+        titleHoverTl.reverse();
+        gsap.to(arrow, {
+          x: 0,
+          duration: 0.3,
+          ease: "power2.out"
+        });
+      });
+    }
+    
+    // Container hover animation
+    if (container) {
+      container.addEventListener('mouseenter', () => {
+        gsap.to(container, {
+          y: -2,
+          duration: 0.4,
+          ease: "power2.out"
+        });
+      });
+      
+      container.addEventListener('mouseleave', () => {
+        gsap.to(container, {
+          y: 0,
+          duration: 0.4,
+          ease: "power2.out"
+        });
+      });
+    }
+    
+    // Text reveal animation (letter by letter for title) - only if text exists
+    // Skip letter-by-letter animation to keep banner always visible
+    // Just ensure the text is visible
+    if (titleMain) {
+      gsap.set(titleMain, { 
+        opacity: 1,
+        display: 'inline-block',
+        visibility: 'visible'
+      });
+    }
+    
+    // Keep banner always visible - prevent any hiding
+    gsap.set(cinelunaticBanner, {
+      display: 'block',
+      visibility: 'visible',
+      opacity: 1,
+      autoAlpha: 1
+    });
+    
+    // Watch for any attempts to hide the banner and prevent it
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach((mutation) => {
+        if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+          const style = cinelunaticBanner.getAttribute('style');
+          if (style && (style.includes('display: none') || style.includes('visibility: hidden'))) {
+            gsap.set(cinelunaticBanner, {
+              display: 'block',
+              visibility: 'visible'
+            });
+          }
+        }
+      });
+    });
+    
+    observer.observe(cinelunaticBanner, {
+      attributes: true,
+      attributeFilter: ['style', 'class']
+    });
+  }
+});
+
 // Custom cursor and background initialization with safety checks
 document.addEventListener('DOMContentLoaded', () => {
   console.log('DOM loaded, initializing background...');
@@ -600,14 +812,16 @@ export default class Home {
       };
     });
 
-    emailButton.addEventListener("click", (e) => {
-      copyText(e);
-      toCopyText.textContent = "copied";
+    if (emailButton && toCopyText) {
+      emailButton.addEventListener("click", (e) => {
+        copyText(e);
+        toCopyText.textContent = "copied";
 
-      setTimeout(() => {
-        toCopyText.textContent = "Click To Copy";
-      }, 2000);
-    });
+        setTimeout(() => {
+          toCopyText.textContent = "Click To Copy";
+        }, 2000);
+      });
+    }
   }
 
   homeIntro() {
@@ -624,6 +838,7 @@ export default class Home {
       yPercent: -100,
       ease: "power4.out",
     })
+      // Banner animation is handled separately, don't animate it here
       .from(".hero__title [title-overflow]", {
         duration: 0.7,
         yPercent: 100,
