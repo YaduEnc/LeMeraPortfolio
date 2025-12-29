@@ -890,6 +890,9 @@ export default class Home {
       });
     }
 
+    // Interactive Skill Bars Animation
+    this.initSkillBars();
+
     gsap.utils.toArray("[data-fade-in]").forEach((el) => {
       gsap.from(el, {
         scrollTrigger: {
@@ -952,6 +955,95 @@ export default class Home {
       },
       scaleX: 4,
       ease: "none",
+    });
+  }
+
+  initSkillBars() {
+    const skillBars = document.querySelectorAll('.skill-bar');
+    
+    if (skillBars.length === 0) return;
+
+    skillBars.forEach((skillBar, index) => {
+      const fillBar = skillBar.querySelector('[data-skill-fill]');
+      const percentageText = skillBar.querySelector('.skill-bar__percentage');
+      const level = parseInt(skillBar.getAttribute('data-level')) || 0;
+      const years = skillBar.getAttribute('data-years') || '';
+      const skillName = skillBar.getAttribute('data-skill') || '';
+
+      if (!fillBar || !percentageText) return;
+
+      // Set initial state
+      gsap.set(fillBar, { width: '0%' });
+      gsap.set(percentageText, { textContent: '0%' });
+      gsap.set(skillBar, { opacity: 0, y: 20 });
+
+      // Create ScrollTrigger for this skill bar
+      ScrollTrigger.create({
+        trigger: skillBar,
+        scroller: "[data-scroll-container]",
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          // Animate bar appearance
+          gsap.to(skillBar, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            delay: index * 0.1,
+            ease: "power2.out",
+            onComplete: () => {
+              skillBar.classList.add('animated');
+            }
+          });
+
+          // Animate fill bar
+          const fillAnimation = gsap.to(fillBar, {
+            width: `${level}%`,
+            duration: 1.5,
+            delay: index * 0.1 + 0.3,
+            ease: "power2.out",
+            onUpdate: function() {
+              // Update percentage text as bar fills
+              const currentWidth = Math.round(this.progress() * level);
+              percentageText.textContent = `${currentWidth}%`;
+            },
+            onComplete: () => {
+              // Ensure final percentage is correct
+              percentageText.textContent = `${level}%`;
+              
+              // Add glow effect when complete
+              gsap.to(skillBar.querySelector('.skill-bar__glow'), {
+                opacity: 0.6,
+                duration: 0.5,
+                ease: "power2.out"
+              });
+            }
+          });
+
+          // Add hover effect for percentage counter
+          skillBar.addEventListener('mouseenter', () => {
+            if (years) {
+              const originalText = percentageText.textContent;
+              percentageText.textContent = years;
+              
+              gsap.to(percentageText, {
+                scale: 1.15,
+                duration: 0.3,
+                ease: "power2.out"
+              });
+            }
+          });
+
+          skillBar.addEventListener('mouseleave', () => {
+            percentageText.textContent = `${level}%`;
+            gsap.to(percentageText, {
+              scale: 1,
+              duration: 0.3,
+              ease: "power2.out"
+            });
+          });
+        }
+      });
     });
   }
 }
